@@ -1,0 +1,56 @@
+- name: Manages a local source install of lbreakouthd
+  hosts: localhost
+  gather_facts: yes
+  vars:
+    prefix_dir: "{{ ansible_env.HOME }}/.local/"
+    version: "1.0.8"
+    make_action: "install"
+    cleanup_tmp: yes
+
+  tasks:
+    - name: Ensure requirements in place
+      dnf:
+        name:
+          - SDL2
+          - SDL2_image
+          - SDL2_mixer
+          - SDL2_ttf
+          - SDL2-devel
+          - SDL2_ttf-devel
+          - SDL2_image-devel
+          - SDL2_mixer-devel
+          - make
+          - gcc
+          - gcc-c++
+        update_cache: yes
+        state: present
+      become: yes
+
+    - name: Create temporary directory
+      file:
+        path: /tmp/lbreakout
+        state: directory
+        mode: 0770
+
+    - name: Download and extract source code
+      unarchive:
+        src: "https://sourceforge.net/projects/lgames/files/lbreakouthd/lbreakouthd-{{ version }}.tar.gz"
+        dest: /tmp/lbreakout/
+        remote_src: yes
+
+    - name: Configure the build
+      command: ./configure --prefix={{ prefix_dir }}
+      args:
+        chdir: "/tmp/lbreakout/lbreakouthd-{{ version }}"
+        creates: "/tmp/lbreakout/lbreakouthd-{{ version }}/Makefile"
+
+    - name: Make game according to defined make_action install / uninstall
+      make:
+        chdir: "/tmp/lbreakout/lbreakouthd-{{ version }}"
+        target: "{{ make_action }}"
+
+    - name: Ensure temporary directory is deleted
+      file:
+        path: /tmp/lbreakout
+        state: absent
+      when: cleanup_tmp | bool
