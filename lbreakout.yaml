@@ -9,7 +9,7 @@
 
   tasks:
     - name: Ensure requirements in place
-      dnf:
+      ansible.builtin.dnf:
         name:
           - SDL2
           - SDL2_image
@@ -27,30 +27,30 @@
       become: true
 
     - name: Create temporary directory
-      file:
+      ansible.builtin.file:
         path: /tmp/lbreakout
         state: directory
         mode: 0770
 
     - name: Download and extract source code
-      unarchive:
+      ansible.builtin.unarchive:
         src: "https://sourceforge.net/projects/lgames/files/lbreakouthd/lbreakouthd-{{ version }}.tar.gz"
         dest: /tmp/lbreakout/
         remote_src: true
 
     - name: Configure the build
-      command: ./configure --prefix={{ prefix_dir }}
+      ansible.builtin.command: ./configure --prefix={{ prefix_dir }}
       args:
         chdir: "/tmp/lbreakout/lbreakouthd-{{ version }}"
         creates: "/tmp/lbreakout/lbreakouthd-{{ version }}/Makefile"
 
     - name: Make game according to defined make_action install / uninstall
-      make:
+      community.general.make:
         chdir: "/tmp/lbreakout/lbreakouthd-{{ version }}"
         target: "{{ make_action }}"
 
     - name: Ensure temporary directory is deleted
-      file:
+      ansible.builtin.file:
         path: /tmp/lbreakout
         state: absent
       when: cleanup_tmp | bool
