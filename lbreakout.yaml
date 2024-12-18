@@ -1,11 +1,11 @@
 - name: Manages a local source install of lbreakouthd
   hosts: localhost
-  gather_facts: yes
+  gather_facts: true
   vars:
     prefix_dir: "{{ ansible_env.HOME }}/.local/"
     version: "1.0.8"
     make_action: "install"
-    cleanup_tmp: yes
+    cleanup_tmp: true
 
   tasks:
     - name: Ensure requirements in place
@@ -22,9 +22,9 @@
           - make
           - gcc
           - gcc-c++
-        update_cache: yes
+        update_cache: true
         state: present
-      become: yes
+      become: true
 
     - name: Create temporary directory
       file:
@@ -36,7 +36,7 @@
       unarchive:
         src: "https://sourceforge.net/projects/lgames/files/lbreakouthd/lbreakouthd-{{ version }}.tar.gz"
         dest: /tmp/lbreakout/
-        remote_src: yes
+        remote_src: true
 
     - name: Configure the build
       command: ./configure --prefix={{ prefix_dir }}
