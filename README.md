@@ -11,7 +11,7 @@ an update to fit the Ansible Core package version 2.16.2 and match the linting r
 
 Just type:
 
-    ansible-playbook -i inventory lbreakout.yml
+    bash install.sh
 
 If the playbook succeeds, try this:
 
